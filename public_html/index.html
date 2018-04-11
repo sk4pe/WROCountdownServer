@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<head><meta charset="utf-8" />
+    <title>Countdown WRO 2018</title>
+
+    <style type="text/css">
+        /*rot: 7a1501
+          grün: a3a60f
+          pink: f299c2*/
+        body {
+            font-family:Arial;
+            font-size:14px;
+            background-color:#383838;
+        }
+
+        textarea
+        {
+            resize: none;
+        }
+
+        .box_wrologo {
+            margin-left:auto; margin-right:auto; width:960px; height:140px; margin-top:20px; background-color:#FFF; padding:20px; -moz-border-radius-bottomleft:15px; 
+            -moz-border-radius-bottomright:15px; 
+            border-bottom-right-radius:15px; 
+            border-bottom-left-radius:15px;
+            -moz-border-radius-topleft:15px; 
+            -moz-border-radius-topright:15px; 
+            border-top-right-radius:15px; 
+            border-top-left-radius:15px;}
+
+        .countdown_box {
+            margin-left:auto; margin-right:auto; width:960px; height:340px; margin-top:20px; background-color:#fd2d00; color:#FFF; padding:20px; -moz-border-radius-bottomleft:15px; 
+            -moz-border-radius-bottomright:15px; 
+            border-bottom-right-radius:15px; 
+            border-bottom-left-radius:15px;
+            -moz-border-radius-topleft:15px; 
+            -moz-border-radius-topright:15px; 
+            border-top-right-radius:15px; 
+            border-top-left-radius:15px; text-align:center; }
+
+        .countdown_box:disabled {
+            background: gainsboro;
+            color: #666666;
+        }
+
+        .button {width:350px; height:60px; font-weight:bold; font-size:40px; overflow:hidden; color:#FFF; background-color:#fd2d00;
+                 -moz-border-radius-bottomleft:15px; 
+                 -moz-border-radius-bottomright:15px; 
+                 border-bottom-right-radius:15px; 
+                 border-bottom-left-radius:15px;
+                 -moz-border-radius-topleft:15px; 
+                 -moz-border-radius-topright:15px; 
+                 border-top-right-radius:15px; 
+                 border-top-left-radius:15px;}
+        .button:disabled{
+            background: gainsboro;
+            color: #666666;
+        }
+        .seite_ueberschrift20 {color:#0056a9; font-size:20px; font-weight:bold; }
+        .seite_ueberschrift18 {color:#0056a9; font-size:18px; font-weight:bold; }
+        .seite_ueberschrift16 {color:#0056a9; font-size:16px; font-weight:bold; }
+        .seite_ueberschrift14 {color:#0056a9; font-size:14px; font-weight:bold; }
+        .seite_ueberschrift12 {color:#0056a9; font-size:12px; font-weight:bold; }
+
+        .seite2_ueberschrift20 {color:#000; font-size:20px; font-weight:bold; }
+        .seite2_ueberschrift18 {color:#000; font-size:18px; font-weight:bold; }
+        .seite2_ueberschrift16 {color:#000; font-size:16px; font-weight:bold; }
+        .seite2_ueberschrift14 {color:#000; font-size:14px; font-weight:bold; }
+        .seite2_ueberschrift12 {color:#000; font-size:12px; font-weight:bold; }
+
+        .aufgabenstellung {
+            width:400px;
+            padding:5px;
+            margin-top:3px;
+            border:1px solid #7a1501;
+            font-size:12px;
+
+        }
+        a:link {color:#000000; }
+        a:visited{color:#000000;}
+        a:hover {color:#000000;}
+    </style>
+</head>
+
+<body>
+
+
+
+
+
+
+
+
+
+
+    <div style="width:960px; margin-left:auto; margin-right:auto;">
+
+        <div class="box_wrologo">
+            <img src="img/WRO_RGB.png" alt='WRO Logo' style="height:100%; text-align: center; display: block; margin: 0 auto;">
+        </div>
+        <div class="countdown_box" id="countdown" style="font-size:300px; font-weight:bold;">02:00</div>
+
+
+        <div class="countdown_box" style="background:#383838; height:100px; padding-top:0px;">
+
+
+
+
+            <select id="zeit" class="countdown_box" style="padding:8px; width:350px; height:40px; font-size:18px; font-weight:bold;"> 
+                <option value="150">Bauphase 1 (150 Minuten)</option>
+                <option value="60">Bauphase 2 (60 Minuten)</option>
+                <option value="30">Bauphase 3+4 (30 Minuten)</option>
+                <option value="2" selected>2 Minuten</option>
+                <option value="120">Football: Bauphase (120 Minuten)</option>
+                <option value="5">Football: 5 Minuten</option>
+                <option value="1">1 Minute</option> 
+                
+            </select>
+        </div><div class="countdown_box" style="background:#383838; height:100px; padding-top:0px;">
+            <input type="button" value="Start" id="startButton" class="button">
+            <input type="button" value="Stop" id="stopButton" class="button">
+            <div id='error'></div>
+            <div id='debug'></div>
+            <div id='debug2'></div>
+
+        </div>
+
+        <audio controls style="display: none;" id="sound1">
+            <source src="wro_buzzer_sound.mp3" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio> 
+        <!--embed src="wro_buzzer_sound.wav" autostart="false" width="1" height="1" id="sound1" enablejavascript="true"-->
+    </div>
+
+
+
+
+
+    <script language="javascript" type="text/javascript">
+        
+        //Konfiguration
+        var server = 'localhost';
+        var port = '8000';
+        var locId = 1;
+        
+        
+        var wsUri = "ws://" + server + ":" + port + "/";
+        var output;
+
+        var countDownDate = 0;
+        var running = false;
+        var debug = document.getElementById('debug');
+        var debug2 = document.getElementById('debug2');
+        // Update the count down every 1 second
+        var x = setInterval(function () {
+            if (running) {
+                // Get todays date and time
+                var now = new Date().getTime();
+
+                // Find the distance between now an the count down date
+                var distance = countDownDate - now;
+
+                // Time calculations for days, hours, minutes and seconds
+                var minutes = Math.floor(distance / (1000 * 60));
+                //var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                if (minutes === 0 && seconds === 11) {
+                    var thissound = document.getElementById('sound1');
+                    thissound.play();
+                }
+                set(minutes, seconds);
+                if (minutes <= 0 && seconds <= 0) {
+                    document.getElementById('countdown').innerHTML = "ENDE";
+                    running = false;
+
+
+
+
+                }
+                // Display the result in the element with id="demo"
+
+
+                // If the count down is finished, write some text
+
+            }
+        }, 1000);
+
+        function init()
+        {
+            output = document.getElementById("cdField");
+            connect();
+        }
+
+        function set(Minuten, Sekunden)
+        {
+
+            sec = Sekunden;   // set the seconds
+            min = Minuten;   // set the minutes
+            if (min < 10) {
+                Minuten = "0" + Minuten;
+            }
+            if (sec < 10) {
+                document.getElementById('countdown').innerHTML = Minuten + ":0" + Sekunden;
+            } else {
+                document.getElementById('countdown').innerHTML = Minuten + ":" + Sekunden;
+            }
+
+
+
+
+
+        }
+        function connect()
+        {
+
+            document.getElementById('error').textContent = '';
+            websocket = new WebSocket(wsUri);
+            websocket.onopen = function (evt) {
+                onOpen(evt);
+            };
+            websocket.onclose = function (evt) {
+                onClose(evt);
+            };
+            websocket.onmessage = function (evt) {
+                onMessage(evt);
+            };
+            websocket.onerror = function (evt) {
+                onError(evt);
+            };
+            
+
+
+        }
+
+        function onOpen(evt)
+        {
+
+            doSend('connection from ' + locId);
+        }
+
+        function onClose(evt)
+        {
+
+
+        }
+
+        function onMessage(evt)
+        {
+            var message = evt.data.toString().split(' ');
+            if (message[0] === 'start' && !running) {
+                running = true;
+
+                set(Math.floor(parseInt(message[1]) / 60), parseInt(message[1]) % 60);
+                countDownDate = new Date().getTime() + parseInt(message[1]) * 1000;
+                debug.textContent = countDownDate;
+            }
+            if (message[0] === 'stop' && running) {
+                running = false;
+                countDownDate = new Date().getTime() + 150 * 60 * 1000;
+                document.getElementById('countdown').innerHTML = "ENDE";
+                //Reset Countdown
+            }
+            if (message[0] === 'sync' && running) {
+
+                countDownDate = new Date().getTime() + parseInt(message[1]) * 1000;
+                debug.textContent = 'sync' + message[1];
+            }
+
+        }
+
+        function onError(evt)
+        {
+            document.getElementById('error').textContent = 'Verbindung unterbrochen';
+            
+        }
+
+        function doSend(message)
+        {
+
+            websocket.send(message);
+        }
+
+        function writeToScreen(message)
+        {
+            output.innerHTML = message;
+        }
+
+        function start_CD()
+        {
+
+            doSend('start countdown ' + locId + ' ' + parseInt(document.getElementById('zeit').value) * 60);
+
+
+        }
+
+        function stop_CD()
+        {
+            doSend('stop countdown ' + locId);
+        }
+
+
+        window.onbeforeunload = function () {
+            websocket.close();
+        };
+        window.addEventListener("load", init, false);
+        
+        document.getElementById("startButton").onclick = start_CD;
+        document.getElementById("stopButton").onclick = stop_CD;
+    </script>
+
+
+</body>
