@@ -6,6 +6,8 @@ import websockets
 from websockets import ConnectionClosed
 
 
+ip_adresse = '10.19.135.255'
+port = 8000
 #cdrunning={'Dortmund':False, 'Hannover':False}
 #connected = {'Dortmund':[], 'Hannover':[]}
 #cdFinish={'Dortmund':None,'Hannover':None}
@@ -140,7 +142,7 @@ async def handler(websocket, path):
     for task in pending:
         task.cancel()
 
-start_server = websockets.serve(handler, 'localhost', 8000)
+start_server = websockets.serve(handler, ip_adresse, port)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
