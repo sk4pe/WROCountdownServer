@@ -5,6 +5,7 @@ import datetime
 import websockets
 from websockets import ConnectionClosed
 
+
 #cdrunning={'Dortmund':False, 'Hannover':False}
 #connected = {'Dortmund':[], 'Hannover':[]}
 #cdFinish={'Dortmund':None,'Hannover':None}
@@ -12,9 +13,10 @@ cdrunning = {}
 connected = {}
 cdFinish = {}
 
-print('Server started')
 
-print(datetime.datetime.now()+datetime.timedelta(0,1))
+
+print(str(datetime.datetime.now()+datetime.timedelta(0,1))+": Server started")
+
 async def time(websocket):
     while True:
         await asyncio.sleep(10)
@@ -34,7 +36,7 @@ async def time(websocket):
 
 
 async def handleIncomingMessage(msg,websocket):
-    print(msg)
+    print(str(datetime.datetime.now() + datetime.timedelta(0, 1)) +": "+ msg)
     incomingMsg = str(msg).split(' ')
     global cdrunning
     global connected
@@ -83,7 +85,7 @@ async def producer_handler(websocket, path):
 
 
 async def sendMsg(websocket, msg):
-    print(msg)
+    print(str(datetime.datetime.now() + datetime.timedelta(0, 1)) + ": "+ msg)
     await websocket.send(msg)
 
 async def getCDStatus(websocket):
@@ -121,7 +123,7 @@ async def clearConnection(websocket):
 
 
             connected[loc].remove(websocket)
-            print('client from  ' + loc + ' disconnected')
+            print(str(datetime.datetime.now() + datetime.timedelta(0, 1)) + ': client from  ' + loc + ' disconnected')
 
             break
 async def handler(websocket, path):
